@@ -1,0 +1,15 @@
+type Transfer @entity {
+  id: ID!
+  from: String! @index
+  to: String! @index
+  amount: BigInt!
+  timestamp: DateTime!
+  blockNumber: Int!
+  txHash: String! @index
+}
+
+type User @entity {
+  id: ID!
+  address: String!
+  balance: BigInt!
+}
