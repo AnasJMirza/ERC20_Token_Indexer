@@ -1,11 +1,11 @@
 import { TypeormDatabase } from "@subsquid/typeorm-store";
 import { TOKEN_CONTRACT_ADDRESS, processor } from "./processor";
+import { parseUnits, formatUnits } from "ethers";
 import * as UNI_ABI from "./abi/UNI_ABI";
 import { Transfer, User } from "./model";
 
 processor.run(new TypeormDatabase({ supportHotBlocks: true }), async (ctx) => {
   let transfers: Transfer[] = [];
-  let users: User[] = [];
 
   for (let block of ctx.blocks) {
     for (let log of block.logs) {
@@ -40,8 +40,5 @@ processor.run(new TypeormDatabase({ supportHotBlocks: true }), async (ctx) => {
       }
     }
   }
-  console.log({ transfers });
-  console.log({ users });
-
   await ctx.store.insert(transfers);
 });
