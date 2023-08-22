@@ -1,4 +1,3 @@
-import { lookupArchive } from "@subsquid/archive-registry";
 import * as UNI_ABI from "./abi/UNI_ABI";
 import {
   BlockHeader,
@@ -8,18 +7,24 @@ import {
   Log as _Log,
   Transaction as _Transaction,
 } from "@subsquid/evm-processor";
+import { ARCHIVE, BLOCKS_RANGE, DATASOURCE, TOKEN_CONTRACT_ADDRESS } from "./constants";
+import { lookupArchive } from "@subsquid/archive-registry";
+import { Store } from "@subsquid/typeorm-store";
 
-export const TOKEN_CONTRACT_ADDRESS = "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984".toLocaleLowerCase();
+if (!ARCHIVE) {
+  throw new Error(`'ARCHIVE' env variable is missing`);
+}
+
+if (!DATASOURCE) {
+  throw new Error(`'${ARCHIVE}' sqd dataSource is not defined`);
+}
 
 export const processor = new EvmBatchProcessor()
-  .setDataSource({
-    archive: lookupArchive("eth-mainnet"),
-    chain: "https://rpc.ankr.com/eth",
-  })
-  .setFinalityConfirmation(75)
-  .setBlockRange({ from: 10_861_674 })
+  .setDataSource(DATASOURCE)
+  .setFinalityConfirmation(10)
+  .setBlockRange(BLOCKS_RANGE)
   .addLog({
-    address: [TOKEN_CONTRACT_ADDRESS],
+    address: [TOKEN_CONTRACT_ADDRESS!],
     topic0: [UNI_ABI.events.Transfer.topic],
   })
   .setFields({
@@ -34,4 +39,4 @@ export type Fields = EvmBatchProcessorFields<typeof processor>;
 export type Block = BlockHeader<Fields>;
 export type Log = _Log<Fields>;
 export type Transaction = _Transaction<Fields>;
-export type ProcessorContext<Store> = DataHandlerContext<Store, Fields>;
+export type ProcessorContext = DataHandlerContext<Store, Fields>;

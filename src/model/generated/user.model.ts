@@ -10,9 +10,6 @@ export class User {
     @PrimaryColumn_()
     id!: string
 
-    @Column_("text", {nullable: false})
-    address!: string
-
     @Column_("numeric", {transformer: marshal.bigintTransformer, nullable: false})
     balance!: bigint
 }

@@ -10,6 +10,5 @@ type Transfer @entity {
 
 type User @entity {
   id: ID!
-  address: String!
   balance: BigInt!
 }

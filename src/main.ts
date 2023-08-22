@@ -1,44 +1,29 @@
 import { TypeormDatabase } from "@subsquid/typeorm-store";
-import { TOKEN_CONTRACT_ADDRESS, processor } from "./processor";
+import { processor } from "./processor";
 import { parseUnits, formatUnits } from "ethers";
 import * as UNI_ABI from "./abi/UNI_ABI";
 import { Transfer, User } from "./model";
+import { TOKEN_CONTRACT_ADDRESS } from "./constants";
+import { EntityManager } from "./utils/entity-manager";
+import { PrefetchFactory } from "./mappings/prefetchFactory";
 
 processor.run(new TypeormDatabase({ supportHotBlocks: true }), async (ctx) => {
-  let transfers: Transfer[] = [];
+  const entityManager = new EntityManager(ctx.store);
+  const factory = new PrefetchFactory(ctx, entityManager);
+  await factory.prefetch();
 
-  for (let block of ctx.blocks) {
-    for (let log of block.logs) {
-      if (log.address === TOKEN_CONTRACT_ADDRESS && log.topics[0] === UNI_ABI.events.Transfer.topic) {
-        const { from, to, amount } = UNI_ABI.events.Transfer.decode(log);
+  if (!entityManager.hasData()) return;
+  for (const item of factory.eventsData) {
+    const transfer = entityManager.get(Transfer, item.item.id, false);
+    let user = entityManager.get(User, item.item.to, false);
 
-        transfers.push(
-          new Transfer({
-            id: log.id,
-            from,
-            to,
-            amount,
-            timestamp: new Date(block.header.timestamp),
-            blockNumber: block.header.height,
-            txHash: log.transactionHash,
-          })
-        );
+    user = new User({
+      ...user,
+      balance: user!.balance + transfer!.amount,
+    });
 
-        // Check if the 'to(user that accepting the token)' user already exists in the database
-        let user = await ctx.store.findOne(User, { where: { address: to } });
-        if (user) {
-          user.balance += amount;
-          await ctx.store.save(user);
-        } else {
-          const newUser = new User({
-            id: log.id,
-            address: to,
-            balance: amount,
-          });
-          await ctx.store.save(newUser);
-        }
-      }
-    }
+    entityManager.add(user);
   }
-  await ctx.store.insert(transfers);
+  await ctx.store.save(entityManager.values(User));
+  await ctx.store.save(entityManager.values(Transfer));
 });
