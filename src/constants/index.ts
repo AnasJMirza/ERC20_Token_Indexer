@@ -29,6 +29,7 @@ const BLOCKS_RANGES: Archives<Range> = {
   [ETH_GOERLI]: { from: 10_861_674 },
 };
 
+// exports
 export const DATASOURCE = DATASOURCES[ARCHIVE];
 export const TOKEN_CONTRACT_ADDRESS = TOKEN_CONTRACT_ADDRESSES[ARCHIVE];
 export const BLOCKS_RANGE = BLOCKS_RANGES[ARCHIVE];
