@@ -2,19 +2,7 @@
 
 The Web3 ERC20 Token Balance Indexing Project is designed to retrieve and index the balances of users' ERC20 tokens on the Ethereum Mainnet. This project utilizes the subsquid library to interact with the Ethereum blockchain, specifically focusing on ERC20 token contracts. The indexed data can be utilized for various purposes such as analytics, reporting, and monitoring user token balances.
 
-## Table of Contents
 
-- [Introduction](#introduction)
-- [Features](#features)
-- [Getting Started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Configuration](#configuration)
-- [Usage](#usage)
-  - [Running the Indexing Process](#running-the-indexing-process)
-  - [Retrieving Indexed Data](#retrieving-indexed-data)
-- [Contributing](#contributing)
-- [License](#license)
 
 ## Introduction
 
